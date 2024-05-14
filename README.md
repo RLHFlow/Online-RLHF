@@ -6,7 +6,10 @@ We present the workflow of Online Iterative Reinforcement Learning from Human Fe
 
 <img width="1589" alt="image" src="https://github.com/RLHFlow/Iterative-RLHF-dev/assets/90632760/ca10442e-0f9e-46fb-a4d7-3c5ed15f34e0">
 
-
+## Model Releases
+- [SFT model](https://huggingface.co/Salesforce/SFR-SFT-LLaMA-3-8B-R)
+- [Reward model](https://huggingface.co/Salesforce/SFR-RM-LLaMA-3-8B-R)
+- [RLHF model](https://huggingface.co/Salesforce/SFR-Iterative-DPO-LLaMA-3-8B-R)
 
 ## Installation instructions
 
