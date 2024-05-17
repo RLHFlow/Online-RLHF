@@ -65,7 +65,7 @@ To start with, you should first preprocess your dataset into the standard format
 accelerate launch ./sft/sft.py
 
 # Train with deepspeed stage3 
-# You may need to adjust ./configs/zero3.yaml, especially the num_processes (the number of GPUs) according to your environmnet
+# You may need to adjust ./configs/zero3.yaml, especially the num_processes (the number of GPUs) according to your environment
 accelerate launch --config_file ./configs/zero3.yaml ./sft/sft.py
 ```
 
