@@ -73,7 +73,7 @@ class ScriptArguments:
     save_steps: Optional[int] = field(default=50000, metadata={"help": "the saving frequency"})
     eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
     run_name: Optional[str] = field(default="dpo_soft", metadata={"help": "the run name"})
-    loss_type: Optional[str] = field(default="rev_kl", metadata={"help": "the loss type"})
+    loss_type: Optional[str] = field(default="sigmoid", metadata={"help": "the loss type"})
     output_dir: Optional[str] = field(default="./dpo_soft", metadata={"help": "the output directory"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
 
