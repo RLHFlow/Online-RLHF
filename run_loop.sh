@@ -47,7 +47,7 @@ do
         model_path=$initial_model
     else
         previous_iteration=$((i-1))
-        model_path="LLaMA3_RLHF_iter${previous_iteration}_rm3"
+        model_path="LLaMA3_iter${previous_iteration}"
     fi
 
     run_iteration $iteration_name $model_path $jsonl_input $json_output $model_output
