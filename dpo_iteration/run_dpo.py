@@ -51,7 +51,7 @@ class ScriptArguments:
     per_device_train_batch_size: Optional[int] = field(default=1, metadata={"help": "train batch size per device"})
     per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "eval batch size per device"})
     gradient_accumulation_steps: Optional[int] = field(
-        default=4, metadata={"help": "the number of gradient accumulation steps"}
+        default=16, metadata={"help": "the number of gradient accumulation steps"}
     )
     gradient_checkpointing: Optional[bool] = field(
         default=True, metadata={"help": "whether to use gradient checkpointing"}
@@ -64,8 +64,8 @@ class ScriptArguments:
 
     margin_scale: Optional[float] = field(default=1.0, metadata={"help": "the margin scale"})
 
-    max_prompt_length: Optional[int] = field(default=600, metadata={"help": "the maximum prompt length"})
-    max_length: Optional[int] = field(default=1000, metadata={"help": "the maximum sequence length"})
+    max_prompt_length: Optional[int] = field(default=1000, metadata={"help": "the maximum prompt length"})
+    max_length: Optional[int] = field(default=2048, metadata={"help": "the maximum sequence length"})
     max_steps: Optional[int] = field(default=20, metadata={"help": "max number of training steps"})
     num_train_epochs: Optional[int] = field(default=2, metadata={"help": "max number of training epochs"})
     logging_steps: Optional[int] = field(default=2, metadata={"help": "the logging frequency"})
