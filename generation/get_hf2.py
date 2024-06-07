@@ -83,7 +83,7 @@ llm = LLM(
     model=model_path,
     tokenizer=model_path,
     dtype="bfloat16",
-    max_model_len=script_args.max_new_tokens,
+    max_model_len=script_args.max_input_length,
     load_format="auto",
     seed=42,
 )
