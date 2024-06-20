@@ -4,7 +4,7 @@ TL;DL: this is a repo to align the large language models (LLMs) by [online itera
 
 We present the workflow of Online Iterative Reinforcement Learning from Human Feedback (RLHF), which is widely reported to outperform its offline counterpart by a large margin in the recent LLM literature. However, existing open-source RLHF projects are still largely confined to the offline learning setting. In this repo, we aim to fill in this gap and provide a detailed recipe that is easy to be reproduced for online iterative RLHF. In particular, with our recipe, with **only open-source data**, we can achieve comparable or even better results than LLaMA3-8B-instruct. 
 
-<img width="1589" alt="image" src="https://github.com/RLHFlow/Iterative-RLHF-dev/assets/90632760/ca10442e-0f9e-46fb-a4d7-3c5ed15f34e0">
+<img width="1589" alt="image" src="eval_result.png">
 
 ## Model Releases
 - [SFT model](https://huggingface.co/RLHFlow/LLaMA3-SFT)
