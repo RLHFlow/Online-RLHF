@@ -15,6 +15,9 @@ We present the workflow of Online Iterative Reinforcement Learning from Human Fe
 
 It is recommeded to have two separate environments for **inference** and **training**, respectively. 
 
+**Note that the numpy version should be `numpy<2.0`.  `Numpy 2.0` will encounter unexpected issues!!!**
+
+
 **Inference Environment**
 
 ```sh
