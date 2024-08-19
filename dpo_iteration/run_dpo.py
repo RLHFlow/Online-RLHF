@@ -131,6 +131,7 @@ def prepare_data(
 
     margin = []
     for sample in ds:
+        P = tokenizer.apply_chat_template(sample["prompt"], tokenize = False, add_generation_prompt= True)
         if choose_type == "random":
             idx0 = 0
             idx1 = 1
@@ -160,18 +161,18 @@ def prepare_data(
         if type(idx0) == np.ndarray or type(idx0) == list:
             assert len(idx0) == len(idx1)
             for i in range(len(idx0)):
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx0[i]] + eot_token)
                 neg.append(sample["responses"][idx1[i]] + eot_token)
                 margin.append((sample["rewards"][idx0[i]] - sample["rewards"][idx1[i]]) * margin_scale)
         else:
             if sample["rewards"][idx0] > sample["rewards"][idx1]:
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx0] + eot_token)
                 neg.append(sample["responses"][idx1] + eot_token)
                 margin.append((sample["rewards"][idx0] - sample["rewards"][idx1]) * margin_scale)
             elif sample["rewards"][idx0] < sample["rewards"][idx1]:
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx1] + eot_token)
                 neg.append(sample["responses"][idx0] + eot_token)
                 margin.append((-sample["rewards"][idx0] + sample["rewards"][idx1]) * margin_scale)
@@ -223,14 +224,6 @@ if __name__ == "__main__":
         model.resize_token_embeddings(len(tokenizer))
         model_ref.resize_token_embeddings(len(tokenizer))
 
-    def tokenize(sample):
-        tokenized_pos = tokenizer(sample["prompt"].replace("<bos>", "") + "\n" + sample["chosen"])
-        tokenized_neg = tokenizer(sample["prompt"].replace("<bos>", "") + "\n" + sample["rejected"])
-        prompt_id = tokenizer(sample["prompt"])
-        sample["tprompdt_ids"] = prompt_id["input_ids"]
-        sample["tchosen_input_ids"] = tokenized_pos["input_ids"]
-        sample["trejected_input_ids"] = tokenized_neg["input_ids"]
-        return sample
 
     # 2. Load the Stack-exchange paired dataset
     train_dataset = prepare_data(
