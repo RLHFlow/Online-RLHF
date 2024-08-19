@@ -5,24 +5,17 @@ from typing import Optional
 import numpy as np
 import torch
 from datasets import Dataset, load_dataset
-from dpo import PreferenceTrainer
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    HfArgumentParser,
-    TrainingArguments,
 )
 from trl import (
     DPOConfig,
     DPOTrainer,
     ModelConfig,
-    RichProgressCallback,
-    get_kbit_device_map,
-    get_peft_config,
-    get_quantization_config,
 )
 
-from trl.commands.cli_utils import DPOScriptArguments, init_zero_verbose, TrlParser
+from trl.commands.cli_utils import TrlParser
 
 
 @dataclass
