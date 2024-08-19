@@ -32,7 +32,7 @@ class ScriptArguments:
     """
 
     # data parameters, i.e., the KL penalty in the paper
-    beta: Optional[float] = field(default=0.1, metadata={"help": "the beta parameter for DPO loss"})
+    #beta: Optional[float] = field(default=0.1, metadata={"help": "the beta parameter for DPO loss"})
 
     # training parameters
     model_name_or_path: Optional[str] = field(
@@ -291,14 +291,11 @@ if __name__ == "__main__":
         model,
         model_ref,
         args=training_args,
-        beta=script_args.beta,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        beta=training_args.beta,
         tokenizer=tokenizer,
-        loss_type=script_args.loss_type,
-        max_prompt_length=script_args.max_prompt_length,
-        max_length=script_args.max_length,
-        #len_penalty=script_args.len_penalty,
+        max_length=training_args.max_length,
+        max_prompt_length=training_args.max_prompt_length,
+        loss_type=training_args.loss_type,
     )
     print("begin to train")
 
