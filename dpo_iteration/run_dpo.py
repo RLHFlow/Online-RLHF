@@ -104,13 +104,13 @@ class ScriptArguments:
     #     },
     # )
     # # debug argument for distributed training
-    # ignore_bias_buffers: Optional[bool] = field(
-    #     default=False,
-    #     metadata={
-    #         "help": "fix for DDP issues with LM bias/mask buffers - invalid scalar type,`inplace operation. See"
-    #         "https://github.com/huggingface/transformers/issues/22482#issuecomment-1595790992"
-    #     },
-    # )
+    ignore_bias_buffers: Optional[bool] = field(
+        default=False,
+        metadata={
+            "help": "fix for DDP issues with LM bias/mask buffers - invalid scalar type,`inplace operation. See"
+            "https://github.com/huggingface/transformers/issues/22482#issuecomment-1595790992"
+        },
+    )
     eot_token: Optional[str] = field(default="", metadata={"help": "the end of text token"})
     #mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
     len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
