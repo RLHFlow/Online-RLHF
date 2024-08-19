@@ -291,6 +291,8 @@ if __name__ == "__main__":
         model,
         model_ref,
         args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         beta=training_args.beta,
         tokenizer=tokenizer,
         max_length=training_args.max_length,
