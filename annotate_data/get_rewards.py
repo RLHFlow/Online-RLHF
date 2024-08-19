@@ -24,11 +24,11 @@ class ScriptArguments:
     """
 
     dataset_name_or_path: Optional[str] = field(
-        default="iter2_K64.json",
+        default="uf_split0_responses_K8.jsonl",
         metadata={"help": "the location of the dataset name or path"},
     )
     output_dir: Optional[str] = field(
-        default="iter2_K64_Mreward.json",
+        default="uf_split0_responses_K8_reward.json",
         metadata={"help": "the location of the output file"},
     )
     record_dir: Optional[str] = field(
@@ -74,7 +74,7 @@ rm_pipe = pipeline(
 
 ds_dir = script_args.dataset_name_or_path
 world_size = int(os.getenv("WORLD_SIZE", "1"))
-ds = load_dataset("json", data_files=ds_dir, split="train", field="instances")
+ds = load_dataset("json", data_files=ds_dir, split="train")
 
 local_rank = Accelerator().local_process_index
 
@@ -102,13 +102,7 @@ def change_of_format(prom, resp):
 
     final_resp = resp.split("GPT4 Correct User")[0]
     """
-    prom = prom
-    final_resp = resp
-
-    message = [
-        {"role": "user", "content": prom},
-        {"role": "assistant", "content": final_resp},
-    ]
+    message = prom + [{"role": "assistant", "content": resp}]
     return rm_tokenizer.apply_chat_template(message, tokenize=False).replace(rm_tokenizer.bos_token, "")
 
 
@@ -120,11 +114,8 @@ with torch.no_grad():
         # The VLLM may not generate responses for some prompts because it is too long, we skip them
         if len(sample["responses"]) < script_args.K:
             continue
-        # test_texts = [change_of_format(sample['prompt'], tmp_output) for tmp_output in sample['responses']]
-        test_texts = [
-            sample["prompt"] + script_args.input_output_delimiter + tmp_output.strip()
-            for tmp_output in sample["responses"]
-        ]
+        test_texts = [change_of_format(sample['prompt'], tmp_output) for tmp_output in sample['responses']]
+        
         rewards = get_reward(test_texts)
         data.append({"prompt": sample["prompt"], "responses": sample["responses"], "rewards": rewards})
 
@@ -164,12 +155,12 @@ if local_rank == 0:
                 script_args.K
             )
         )
-    output_eval_dataset = {}
-    output_eval_dataset["type"] = "text_only"
-    output_eval_dataset["instances"] = gathered_data
-    with open(script_args.output_dir, "w", encoding="utf8") as f:
-        json.dump(output_eval_dataset, f, ensure_ascii=False)
 
+    with open(script_args.output_dir, "w", encoding="utf8") as f:
+        for i in range(len(gathered_data)):
+            json.dump(gathered_data[i], f, ensure_ascii=False)
+            f.write('\n')
+            
     if script_args.record_dir is not None:
         with open(script_args.record_dir, "a") as f:
             f.write(str(mean_scores) + "\t" + str(top1_scores) + "\n")
