@@ -75,9 +75,7 @@ accelerate launch --config_file ./configs/zero3.yaml ./sft/sft.py
 ```
 
 ### Step 2 Reward Modeling
-We refer the interested readers to [this repo](https://github.com/RLHFlow/RLHF-Reward-Modeling) for a detailed recipe to train the state-of-the-art open-source reward/preference models. We have trained several RMs and prepared them on the huggingface like [sfairXC/FsfairX-LLaMA3-RM-v0.1](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1) and [RLHFlow/pair-preference-model-LLaMA3-8B](https://huggingface.co/RLHFlow/pair-preference-model-LLaMA3-8B), which are SOTA open-source RMs so far (2024 May).
-
-<img width="1589" alt="image" src="https://github.com/RLHFlow/Iterative-RLHF-dev/assets/90632760/956449aa-f382-496a-8691-12c10bd24ea2">
+We refer the interested readers to [this repo](https://github.com/RLHFlow/RLHF-Reward-Modeling) for a detailed recipe to train the state-of-the-art open-source reward/preference models. We have trained several RMs and prepared them on the huggingface like [sfairXC/FsfairX-LLaMA3-RM-v0.1](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1), [RLHFlow/pair-preference-model-LLaMA3-8B](https://huggingface.co/RLHFlow/pair-preference-model-LLaMA3-8B), [RLHFlow/ArmoRM-Llama3-8B-v0.1](https://huggingface.co/RLHFlow/ArmoRM-Llama3-8B-v0.1), which are SOTA open-source RMs so far (2024 May).
 
 ### Step 3.1 Data Generation
 To accelerate data generation, we use the VLLM. We prepare two ways of using VLLM to inference for a more robust implementation, where you can try them out and choose the one that fits with your environment best. We use LLaMA3-8B as an example. For other models, you need to adjust the eos_ids.
