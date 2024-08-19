@@ -190,7 +190,7 @@ if __name__ == "__main__":
     # 1. load a pretrained model
     model = AutoModelForCausalLM.from_pretrained(
         script_args.model_name_or_path,
-        use_flash_attention_2=True,
+        attn_implementation="flash_attention_2",
         torch_dtype=torch.float16,
     )
     model.config.use_cache = False
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     model_ref = AutoModelForCausalLM.from_pretrained(
         ref_name,
         torch_dtype=torch.bfloat16,
-        use_flash_attention_2=True,
+        attn_implementation="flash_attention_2",
     )
     tokenizer = AutoTokenizer.from_pretrained(script_args.model_name_or_path)
     if script_args.eos_padding:
@@ -292,7 +292,6 @@ if __name__ == "__main__":
         loss_type=script_args.loss_type,
         max_prompt_length=script_args.max_prompt_length,
         max_length=script_args.max_length,
-        mask_prompt=script_args.mask_prompt,
         len_penalty=script_args.len_penalty,
     )
     print("begin to train")
