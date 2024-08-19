@@ -35,10 +35,10 @@ class ScriptArguments:
     #beta: Optional[float] = field(default=0.1, metadata={"help": "the beta parameter for DPO loss"})
 
     # training parameters
-    model_name_or_path: Optional[str] = field(
-        default="HuggingFaceH4/mistral-7b-sft-beta",
-        metadata={"help": "the location of the model name or path"},
-    )
+    # model_name_or_path: Optional[str] = field(
+    #     default="HuggingFaceH4/mistral-7b-sft-beta",
+    #     metadata={"help": "the location of the model name or path"},
+    # )
     ref_model: Optional[str] = field(
         default="",
         metadata={"help": "the location of the SFT model name or path"},
@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
     # 1. load a pretrained model
     model = AutoModelForCausalLM.from_pretrained(
-        script_args.model_name_or_path,
+        model_config.model_name_or_path,
         attn_implementation="flash_attention_2",
         torch_dtype=torch.float16,
     )
@@ -218,14 +218,14 @@ if __name__ == "__main__":
     if script_args.ref_model:
         ref_name = script_args.ref_model
     else:
-        ref_name = script_args.model_name_or_path
+        ref_name = model_config.model_name_or_path
 
     model_ref = AutoModelForCausalLM.from_pretrained(
         ref_name,
         torch_dtype=torch.bfloat16,
         attn_implementation="flash_attention_2",
     )
-    tokenizer = AutoTokenizer.from_pretrained(script_args.model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path)
     if script_args.eos_padding:
         tokenizer.pad_token = tokenizer.eos_token
     else:
