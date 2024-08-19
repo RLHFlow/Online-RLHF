@@ -25,12 +25,13 @@ conda create -n vllm python=3.10.9
 conda activate vllm
 pip install datasets
 # The following code is tested for CUDA12.0-12.2. You may need to update the torch and flash-attention sources according to your own CUDA version
-pip3 install torch==2.1.2 torchvision torchaudio
-pip install https://github.com/vllm-project/vllm/releases/download/v0.4.0/vllm-0.4.0-cp310-cp310-manylinux1_x86_64.whl 
-pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.5.7/flash_attn-2.5.7+cu122torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+pip install https://github.com/vllm-project/vllm/releases/download/v0.5.1/vllm-0.5.1-cp310-cp310-manylinux1_x86_64.whl
+pip install https://github.com/flashinfer-ai/flashinfer/releases/download/v0.0.9/flashinfer-0.0.9+cu121torch2.3-cp310-cp310-linux_x86_64.whl
 
-pip install accelerate==0.27.2
-pip install deepspeed
+pip install accelerate==0.33.0
+pip install deepspeed==0.14.5
+pip install transformers==4.43.4
+pip install numpy==1.26.4 #Note that the numpy version should be `numpy<2.0`.  `Numpy 2.0` will encounter unexpected issues!!!
 ```
 
 **Training Environment**
@@ -41,11 +42,11 @@ conda activate rlhflow
 
 git clone https://github.com/huggingface/alignment-handbook.git
 cd ./alignment-handbook/
-git checkout d17fd7cd3b71c6a7bf7af34d8dc73135bb7ea8e9
+#git checkout d17fd7cd3b71c6a7bf7af34d8dc73135bb7ea8e9
 pip3 install torch==2.1.2 torchvision torchaudio
 python -m pip install .
-pip install https://github.com/Dao-AILab/flash-attention/releases/download/v2.5.7/flash_attn-2.5.7+cu122torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
-pip install accelerate==0.27.2
+pip install flash-attn==2.6.3
+pip install accelerate==0.33.0
 ```
 
 You also need to install the wandb to record the training and login with your huggingface account so that you have access to the LLaMA3 models.
@@ -83,9 +84,6 @@ To accelerate data generation, we use the VLLM. We prepare two ways of using VLL
 We can also use API server to generate new responses.
 
 ```sh
-# First approach: initialize 4 VLLM processes and split the prompt set to the 4 agents
-# The generated samples will be stored at output_dir + local_index + ".json
-
 my_world_size=4
 infer_model=meta-llama/Meta-Llama-3-8B-Instruct
 prompt_dir=RLHFlow/test_generation_2k
