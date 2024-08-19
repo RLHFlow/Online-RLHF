@@ -12,7 +12,18 @@ from transformers import (
     HfArgumentParser,
     TrainingArguments,
 )
-from trl import DPOTrainer
+from trl import (
+    DPOConfig,
+    DPOTrainer,
+    ModelConfig,
+    RichProgressCallback,
+    get_kbit_device_map,
+    get_peft_config,
+    get_quantization_config,
+)
+
+from trl.commands.cli_utils import DPOScriptArguments, init_zero_verbose, TrlParser
+
 
 @dataclass
 class ScriptArguments:
@@ -40,42 +51,42 @@ class ScriptArguments:
         default="/export/home/hanze/project/vllm-gen/uf_split0_offline_reward.json",  # "/export/home/data/gemma_it_2b_3w_k8_with_pairrm_rewards.json",
         metadata={"help": "the location of the evalset name or path"},
     )
-    learning_rate: Optional[float] = field(default=5e-7, metadata={"help": "optimizer learning rate"})
-    lr_scheduler_type: Optional[str] = field(
-        default="constant_with_warmup", metadata={"help": "the lr scheduler type"}
-    )
-    warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
-    weight_decay: Optional[float] = field(default=0.01, metadata={"help": "the weight decay"})
-    optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
+    # learning_rate: Optional[float] = field(default=5e-7, metadata={"help": "optimizer learning rate"})
+    # lr_scheduler_type: Optional[str] = field(
+    #     default="constant_with_warmup", metadata={"help": "the lr scheduler type"}
+    # )
+    # warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
+    # weight_decay: Optional[float] = field(default=0.01, metadata={"help": "the weight decay"})
+    # optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
 
-    per_device_train_batch_size: Optional[int] = field(default=1, metadata={"help": "train batch size per device"})
-    per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "eval batch size per device"})
-    gradient_accumulation_steps: Optional[int] = field(
-        default=16, metadata={"help": "the number of gradient accumulation steps"}
-    )
-    gradient_checkpointing: Optional[bool] = field(
-        default=True, metadata={"help": "whether to use gradient checkpointing"}
-    )
+    # per_device_train_batch_size: Optional[int] = field(default=1, metadata={"help": "train batch size per device"})
+    # per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "eval batch size per device"})
+    # gradient_accumulation_steps: Optional[int] = field(
+    #     default=16, metadata={"help": "the number of gradient accumulation steps"}
+    # )
+    # gradient_checkpointing: Optional[bool] = field(
+    #     default=True, metadata={"help": "whether to use gradient checkpointing"}
+    # )
 
-    eos_padding: Optional[bool] = field(default=True, metadata={"help": "whether to pad with eos token"})
-    lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
-    lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
-    lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
+    # eos_padding: Optional[bool] = field(default=True, metadata={"help": "whether to pad with eos token"})
+    # lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
+    # lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
+    # lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
 
     margin_scale: Optional[float] = field(default=1.0, metadata={"help": "the margin scale"})
 
-    max_prompt_length: Optional[int] = field(default=1000, metadata={"help": "the maximum prompt length"})
-    max_length: Optional[int] = field(default=2048, metadata={"help": "the maximum sequence length"})
-    max_steps: Optional[int] = field(default=20, metadata={"help": "max number of training steps"})
-    num_train_epochs: Optional[int] = field(default=2, metadata={"help": "max number of training epochs"})
-    logging_steps: Optional[int] = field(default=2, metadata={"help": "the logging frequency"})
-    save_strategy: Optional[str] = field(default="epoch", metadata={"help": "the saving strategy"})
-    save_steps: Optional[int] = field(default=50000, metadata={"help": "the saving frequency"})
-    eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
-    run_name: Optional[str] = field(default="dpo_soft", metadata={"help": "the run name"})
-    loss_type: Optional[str] = field(default="sigmoid", metadata={"help": "the loss type"})
-    output_dir: Optional[str] = field(default="./dpo_soft", metadata={"help": "the output directory"})
-    log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
+    # max_prompt_length: Optional[int] = field(default=1000, metadata={"help": "the maximum prompt length"})
+    # max_length: Optional[int] = field(default=2048, metadata={"help": "the maximum sequence length"})
+    # max_steps: Optional[int] = field(default=20, metadata={"help": "max number of training steps"})
+    # num_train_epochs: Optional[int] = field(default=2, metadata={"help": "max number of training epochs"})
+    # logging_steps: Optional[int] = field(default=2, metadata={"help": "the logging frequency"})
+    # save_strategy: Optional[str] = field(default="epoch", metadata={"help": "the saving strategy"})
+    # save_steps: Optional[int] = field(default=50000, metadata={"help": "the saving frequency"})
+    # eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
+    # run_name: Optional[str] = field(default="dpo_soft", metadata={"help": "the run name"})
+    # loss_type: Optional[str] = field(default="sigmoid", metadata={"help": "the loss type"})
+    # output_dir: Optional[str] = field(default="./dpo_soft", metadata={"help": "the output directory"})
+    # log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
 
     # instrumentation
     sanity_check: Optional[bool] = field(default=False, metadata={"help": "only train on 1000 samples"})
@@ -84,22 +95,22 @@ class ScriptArguments:
 
     choose_type: Optional[str] = field(default="max_random", metadata={"help": "the choose type"})
 
-    report_to: Optional[str] = field(
-        default="wandb",
-        metadata={
-            "help": 'The list of integrations to report the results and logs to. Supported platforms are `"azure_ml"`,'
-            '`"comet_ml"`, `"mlflow"`, `"neptune"`, `"tensorboard"`,`"clearml"` and `"wandb"`. '
-            'Use `"all"` to report to all integrations installed, `"none"` for no integrations.'
-        },
-    )
-    # debug argument for distributed training
-    ignore_bias_buffers: Optional[bool] = field(
-        default=False,
-        metadata={
-            "help": "fix for DDP issues with LM bias/mask buffers - invalid scalar type,`inplace operation. See"
-            "https://github.com/huggingface/transformers/issues/22482#issuecomment-1595790992"
-        },
-    )
+    # report_to: Optional[str] = field(
+    #     default="wandb",
+    #     metadata={
+    #         "help": 'The list of integrations to report the results and logs to. Supported platforms are `"azure_ml"`,'
+    #         '`"comet_ml"`, `"mlflow"`, `"neptune"`, `"tensorboard"`,`"clearml"` and `"wandb"`. '
+    #         'Use `"all"` to report to all integrations installed, `"none"` for no integrations.'
+    #     },
+    # )
+    # # debug argument for distributed training
+    # ignore_bias_buffers: Optional[bool] = field(
+    #     default=False,
+    #     metadata={
+    #         "help": "fix for DDP issues with LM bias/mask buffers - invalid scalar type,`inplace operation. See"
+    #         "https://github.com/huggingface/transformers/issues/22482#issuecomment-1595790992"
+    #     },
+    # )
     eot_token: Optional[str] = field(default="", metadata={"help": "the end of text token"})
     #mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
     len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
@@ -185,8 +196,10 @@ def prepare_data(
 
 
 if __name__ == "__main__":
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+
+    
+    parser = TrlParser((ScriptArguments, DPOConfig, ModelConfig))
+    script_args, training_args, model_config = parser.parse_args_and_config()
 
     # 1. load a pretrained model
     model = AutoModelForCausalLM.from_pretrained(
@@ -248,28 +261,28 @@ if __name__ == "__main__":
 
     # 4. initialize training arguments:
 
-    training_args = TrainingArguments(
-        per_device_train_batch_size=script_args.per_device_train_batch_size,
-        per_device_eval_batch_size=script_args.per_device_eval_batch_size,
-        # max_steps=script_args.max_steps,
-        num_train_epochs=script_args.num_train_epochs,
-        save_strategy=script_args.save_strategy,
-        logging_steps=script_args.logging_steps,
-        save_steps=script_args.save_steps,
-        gradient_accumulation_steps=script_args.gradient_accumulation_steps,
-        gradient_checkpointing=script_args.gradient_checkpointing,
-        learning_rate=script_args.learning_rate,
-        evaluation_strategy="steps",
-        eval_steps=script_args.eval_steps,
-        output_dir=script_args.output_dir,
-        # report_to=script_args.report_to,
-        lr_scheduler_type=script_args.lr_scheduler_type,
-        warmup_steps=script_args.warmup_steps,
-        # optim=script_args.optimizer_type,
-        bf16=True,
-        remove_unused_columns=False,
-        run_name=script_args.run_name,
-    )
+    # training_args = TrainingArguments(
+    #     per_device_train_batch_size=script_args.per_device_train_batch_size,
+    #     per_device_eval_batch_size=script_args.per_device_eval_batch_size,
+    #     # max_steps=script_args.max_steps,
+    #     num_train_epochs=script_args.num_train_epochs,
+    #     save_strategy=script_args.save_strategy,
+    #     logging_steps=script_args.logging_steps,
+    #     save_steps=script_args.save_steps,
+    #     gradient_accumulation_steps=script_args.gradient_accumulation_steps,
+    #     gradient_checkpointing=script_args.gradient_checkpointing,
+    #     learning_rate=script_args.learning_rate,
+    #     evaluation_strategy="steps",
+    #     eval_steps=script_args.eval_steps,
+    #     output_dir=script_args.output_dir,
+    #     # report_to=script_args.report_to,
+    #     lr_scheduler_type=script_args.lr_scheduler_type,
+    #     warmup_steps=script_args.warmup_steps,
+    #     # optim=script_args.optimizer_type,
+    #     bf16=True,
+    #     remove_unused_columns=False,
+    #     run_name=script_args.run_name,
+    # )
     print(training_args)
 
     # 5. initialize the DPO trainer
