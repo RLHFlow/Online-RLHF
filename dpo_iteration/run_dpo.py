@@ -101,8 +101,8 @@ class ScriptArguments:
         },
     )
     eot_token: Optional[str] = field(default="", metadata={"help": "the end of text token"})
-    mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
-    len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
+    #mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
+    #len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
 
 
 def prepare_data(
@@ -292,7 +292,7 @@ if __name__ == "__main__":
         loss_type=script_args.loss_type,
         max_prompt_length=script_args.max_prompt_length,
         max_length=script_args.max_length,
-        len_penalty=script_args.len_penalty,
+        #len_penalty=script_args.len_penalty,
     )
     print("begin to train")
 
