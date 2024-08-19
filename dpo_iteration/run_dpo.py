@@ -12,7 +12,7 @@ from transformers import (
     HfArgumentParser,
     TrainingArguments,
 )
-
+from trl import DPOTrainer
 
 @dataclass
 class ScriptArguments:
@@ -106,7 +106,7 @@ class ScriptArguments:
 
 
 def prepare_data(
-    data_dir: str = "/home/xiongwei/data/helpful/rm/rm1003.json",
+    data_dir: str = "/home/xiongwei/data/helpful/rm/rm1003.jsonl",
     sanity_check: bool = False,
     cache_dir: str = None,
     num_proc=24,
@@ -122,7 +122,7 @@ def prepare_data(
     max_max: best v.s. second best
     max_min_p: best v.s. worst but we additionally add a length penalty in the reward value
     """
-    ds = load_dataset("json", data_files=data_dir, split="train", field="instances")
+    ds = load_dataset("json", data_files=data_dir, split="train")
     print(ds)
 
     pos = []
@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
     # 5. initialize the DPO trainer
 
-    dpo_trainer = PreferenceTrainer(
+    dpo_trainer = DPOTrainer(
         model,
         model_ref,
         args=training_args,
