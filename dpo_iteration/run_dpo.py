@@ -68,7 +68,7 @@ class ScriptArguments:
     #     default=True, metadata={"help": "whether to use gradient checkpointing"}
     # )
 
-    # eos_padding: Optional[bool] = field(default=True, metadata={"help": "whether to pad with eos token"})
+    eos_padding: Optional[bool] = field(default=True, metadata={"help": "whether to pad with eos token"})
     # lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
     # lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
     # lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
