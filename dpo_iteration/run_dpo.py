@@ -102,7 +102,7 @@ class ScriptArguments:
     )
     eot_token: Optional[str] = field(default="", metadata={"help": "the end of text token"})
     #mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
-    #len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
+    len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
 
 
 def prepare_data(
