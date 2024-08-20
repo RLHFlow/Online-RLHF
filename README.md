@@ -24,12 +24,15 @@ It is recommeded to have two separate environments for **inference** and **train
 conda create -n vllm python=3.10.9
 conda activate vllm
 pip install datasets
-# The following code is tested for CUDA12.0-12.2 and for llama-3, 3.1, mistral, gemma-1, 1.1.
-pip install https://github.com/vllm-project/vllm/releases/download/v0.5.3.post1/vllm-0.5.3.post1-cp310-cp310-manylinux1_x86_64.whl
 
-# To develop Gemma-2 model, llama-3, mistral, gemma-1, 1.1, you can also consider the following vllm version and flashinfer
-# pip install https://github.com/vllm-project/vllm/releases/download/v0.5.1/vllm-0.5.1-cp310-cp310-manylinux1_x86_64.whl
-# pip install https://github.com/flashinfer-ai/flashinfer/releases/download/v0.0.9/flashinfer-0.0.9+cu121torch2.3-cp310-cp310-linux_x86_64.whl
+# The following code is tested for CUDA12.0-12.
+# To develop llama-3, mistral, gemma-1, 1.1, you can consider the following vllm version
+pip install https://github.com/vllm-project/vllm/releases/download/v0.5.1/vllm-0.5.1-cp310-cp310-manylinux1_x86_64.whl
+pip install https://github.com/flashinfer-ai/flashinfer/releases/download/v0.0.9/flashinfer-0.0.9+cu121torch2.3-cp310-cp310-linux_x86_64.whl
+
+# To develop Gemma-2, llama-3.1, you may need the following 
+#pip install https://github.com/vllm-project/vllm/releases/download/v0.5.3.post1/vllm-0.5.3.post1-cp310-cp310-manylinux1_x86_64.whl
+
 
 pip install accelerate==0.33.0
 pip install deepspeed==0.14.5
