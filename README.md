@@ -24,9 +24,12 @@ It is recommeded to have two separate environments for **inference** and **train
 conda create -n vllm python=3.10.9
 conda activate vllm
 pip install datasets
-# The following code is tested for CUDA12.0-12.2. You may need to update the torch and flash-attention sources according to your own CUDA version
-pip install https://github.com/vllm-project/vllm/releases/download/v0.5.1/vllm-0.5.1-cp310-cp310-manylinux1_x86_64.whl
-pip install https://github.com/flashinfer-ai/flashinfer/releases/download/v0.0.9/flashinfer-0.0.9+cu121torch2.3-cp310-cp310-linux_x86_64.whl
+# The following code is tested for CUDA12.0-12.2 and for llama-3, 3.1, mistral, gemma-1, 1.1.
+pip install https://github.com/vllm-project/vllm/releases/download/v0.5.3.post1/vllm-0.5.3.post1-cp310-cp310-manylinux1_x86_64.whl
+
+# To develop Gemma-2 model, consider the following vllm version and flashinfer
+# pip install https://github.com/vllm-project/vllm/releases/download/v0.5.1/vllm-0.5.1-cp310-cp310-manylinux1_x86_64.whl
+# pip install https://github.com/flashinfer-ai/flashinfer/releases/download/v0.0.9/flashinfer-0.0.9+cu121torch2.3-cp310-cp310-linux_x86_64.whl
 
 pip install accelerate==0.33.0
 pip install deepspeed==0.14.5
@@ -47,13 +50,12 @@ pip3 install torch==2.1.2 torchvision torchaudio
 python -m pip install .
 pip install flash-attn==2.6.3
 pip install accelerate==0.33.0
-pip install wandb==0.17.7
 ```
 
 You also need to install the wandb to record the training and login with your huggingface account so that you have access to the LLaMA3 models.
 
 ```sh
-pip install wandb
+pip install wandb==0.17.7
 
 wandb login
 huggingface-cli login
@@ -83,23 +85,21 @@ To accelerate data generation, we use the VLLM. We prepare two ways of using VLL
 We can also use API server to generate new responses.
 
 ```sh
-my_world_size=4
-infer_model=meta-llama/Meta-Llama-3-8B-Instruct
-prompt_dir=RLHFlow/test_generation_2k
 mkdir data
-output_dir=./data/gen_data.json
 conda activate vllm
 
 # register the api server
-bash ./generation/register_server.sh $infer_model
-python ./generation/gen_hf.py --ports 8000 8001 8002 8003 8004 8005 8006 8007 --eos_ids 128009 --tokenizer $infer_model --dataset_name_or_path $prompt_dir --output_dir $output_dir --K 4 --temperature 1.0
+bash ./generation/register_server.sh meta-llama/Meta-Llama-3.1-8B-Instruct
+
+# start to generate
+python ./generation/gen_hf.py --ports 8000 8001 8002 8003 8004 8005 8006 8007 --tokenizer meta-llama/Meta-Llama-3.1-8B-Instruct --dataset_name_or_path RLHFlow/test_generation_2k --output_dir ./data/gen_data.jsonl --K 4 --temperature 1.0
 ```
 
 ### Step 3.2 Data Annotation
 Then, we call the reward/preference model trained in step 2 to rank the generated responses. 
 
 ```sh
-accelerate launch ./annotate_data/get_rewards.py --dataset_name_or_path ./data/gen_data.json --output_dir ./data/data_with_rewards.json --K 4
+accelerate launch ./annotate_data/get_rewards.py --dataset_name_or_path ./data/gen_data.jsonl --output_dir ./data/data_with_rewards.jsonl --K 4
 ```
 If you encounter error ``TypeError: Got unsupported ScalarType BFloat16'', considering pip install transformers==4.38.2
 
