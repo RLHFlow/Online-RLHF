@@ -24,7 +24,7 @@ from transformers import (
     PreTrainedTokenizerBase,
     Trainer,
 )
-from trl.utils import cap_exp
+from trl.trainer.utils import cap_exp
 from transformers.trainer_callback import TrainerCallback
 from transformers.trainer_utils import EvalLoopOutput
 from trl import DPOTrainer
