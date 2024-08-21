@@ -9,6 +9,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
 )
+from alignment import H4ArgumentParser
 from trl import (
     DPOConfig,
     DPOTrainer,
@@ -191,7 +192,7 @@ def prepare_data(
 if __name__ == "__main__":
 
     
-    parser = TrlParser((ScriptArguments, DPOConfig, ModelConfig))
+    parser = H4ArgumentParser((ScriptArguments, DPOConfig, ModelConfig))
     script_args, training_args, model_config = parser.parse_args_and_config()
 
     # 1. load a pretrained model
