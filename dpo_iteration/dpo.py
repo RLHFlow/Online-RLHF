@@ -28,7 +28,7 @@ from trl.trainer.utils import cap_exp
 from transformers.trainer_callback import TrainerCallback
 from transformers.trainer_utils import EvalLoopOutput
 from trl import DPOTrainer
-from trl.dpo_config import DPOConfig, FDivergenceConstants, FDivergenceType
+from trl.trainer.dpo_config import DPOConfig, FDivergenceConstants, FDivergenceType
 
 class MyDPOTrainer(DPOTrainer):
     def __init__(
