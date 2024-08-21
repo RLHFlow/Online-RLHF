@@ -17,7 +17,7 @@ from trl import (
 )
 
 from trl.commands.cli_utils import TrlParser
-
+from dpo import MyDPOTrainer
 
 @dataclass
 class ScriptArguments:
@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
     # 5. initialize the DPO trainer
 
-    dpo_trainer = DPOTrainer(
+    dpo_trainer = MyDPOTrainer(
         model,
         model_ref,
         args=training_args,
