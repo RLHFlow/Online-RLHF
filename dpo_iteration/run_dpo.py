@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     
     parser = H4ArgumentParser((ScriptArguments, DPOConfig, ModelConfig))
-    script_args, training_args, model_config = parser.parse_args_and_config()
+    script_args, training_args, model_config = parser.parse()
 
     # 1. load a pretrained model
     model = AutoModelForCausalLM.from_pretrained(
