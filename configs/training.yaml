@@ -2,7 +2,8 @@ choose_type: max_min
 train_dir: data_with_rewards_1k.jsonl
 eval_dir: data_with_rewards_1k.jsonl
 output_dir: ./test
-model_name_or_path: mistralai/Mistral-7B-Instruct-v0.3
+model_name_or_path: RLHFlow/LLaMA3-SFT
+ref_model: RLHFlow/LLaMA3-SFT
 bf16: true
 per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
