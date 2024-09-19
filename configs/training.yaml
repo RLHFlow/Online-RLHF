@@ -9,9 +9,9 @@ per_device_eval_batch_size: 1
 gradient_accumulation_steps: 16
 label_smoothing: 0.1
 report_to: wandb
-eval_steps: 1
+eval_steps: 888888
 num_train_epochs: 2
-logging_steps: 1
+logging_steps: 2
 gradient_checkpointing: true
 do_train: true
 do_eval: true
@@ -20,3 +20,4 @@ lr_scheduler_type: cosine
 eval_strategy: steps
 max_length: 4096
 max_prompt_length: 1024
+learning_rate: 5.0e-7
