@@ -5,14 +5,19 @@ from typing import Optional
 import numpy as np
 import torch
 from datasets import Dataset, load_dataset
-from dpo import PreferenceTrainer
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
-    HfArgumentParser,
-    TrainingArguments,
+)
+from alignment import H4ArgumentParser
+from trl import (
+    DPOConfig,
+    DPOTrainer,
+    ModelConfig,
 )
 
+from trl.commands.cli_utils import TrlParser
+from dpo import MyDPOTrainer
 
 @dataclass
 class ScriptArguments:
@@ -21,13 +26,13 @@ class ScriptArguments:
     """
 
     # data parameters, i.e., the KL penalty in the paper
-    beta: Optional[float] = field(default=0.1, metadata={"help": "the beta parameter for DPO loss"})
+    #beta: Optional[float] = field(default=0.1, metadata={"help": "the beta parameter for DPO loss"})
 
     # training parameters
-    model_name_or_path: Optional[str] = field(
-        default="HuggingFaceH4/mistral-7b-sft-beta",
-        metadata={"help": "the location of the model name or path"},
-    )
+    # model_name_or_path: Optional[str] = field(
+    #     default="HuggingFaceH4/mistral-7b-sft-beta",
+    #     metadata={"help": "the location of the model name or path"},
+    # )
     ref_model: Optional[str] = field(
         default="",
         metadata={"help": "the location of the SFT model name or path"},
@@ -40,42 +45,42 @@ class ScriptArguments:
         default="/export/home/hanze/project/vllm-gen/uf_split0_offline_reward.json",  # "/export/home/data/gemma_it_2b_3w_k8_with_pairrm_rewards.json",
         metadata={"help": "the location of the evalset name or path"},
     )
-    learning_rate: Optional[float] = field(default=5e-7, metadata={"help": "optimizer learning rate"})
-    lr_scheduler_type: Optional[str] = field(
-        default="constant_with_warmup", metadata={"help": "the lr scheduler type"}
-    )
-    warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
-    weight_decay: Optional[float] = field(default=0.01, metadata={"help": "the weight decay"})
-    optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
+    # learning_rate: Optional[float] = field(default=5e-7, metadata={"help": "optimizer learning rate"})
+    # lr_scheduler_type: Optional[str] = field(
+    #     default="constant_with_warmup", metadata={"help": "the lr scheduler type"}
+    # )
+    # warmup_steps: Optional[int] = field(default=100, metadata={"help": "the number of warmup steps"})
+    # weight_decay: Optional[float] = field(default=0.01, metadata={"help": "the weight decay"})
+    # optimizer_type: Optional[str] = field(default="paged_adamw_32bit", metadata={"help": "the optimizer type"})
 
-    per_device_train_batch_size: Optional[int] = field(default=1, metadata={"help": "train batch size per device"})
-    per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "eval batch size per device"})
-    gradient_accumulation_steps: Optional[int] = field(
-        default=16, metadata={"help": "the number of gradient accumulation steps"}
-    )
-    gradient_checkpointing: Optional[bool] = field(
-        default=True, metadata={"help": "whether to use gradient checkpointing"}
-    )
+    # per_device_train_batch_size: Optional[int] = field(default=1, metadata={"help": "train batch size per device"})
+    # per_device_eval_batch_size: Optional[int] = field(default=1, metadata={"help": "eval batch size per device"})
+    # gradient_accumulation_steps: Optional[int] = field(
+    #     default=16, metadata={"help": "the number of gradient accumulation steps"}
+    # )
+    # gradient_checkpointing: Optional[bool] = field(
+    #     default=True, metadata={"help": "whether to use gradient checkpointing"}
+    # )
 
     eos_padding: Optional[bool] = field(default=True, metadata={"help": "whether to pad with eos token"})
-    lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
-    lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
-    lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
+    # lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter"})
+    # lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter"})
+    # lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter"})
 
     margin_scale: Optional[float] = field(default=1.0, metadata={"help": "the margin scale"})
 
-    max_prompt_length: Optional[int] = field(default=1000, metadata={"help": "the maximum prompt length"})
-    max_length: Optional[int] = field(default=2048, metadata={"help": "the maximum sequence length"})
-    max_steps: Optional[int] = field(default=20, metadata={"help": "max number of training steps"})
-    num_train_epochs: Optional[int] = field(default=2, metadata={"help": "max number of training epochs"})
-    logging_steps: Optional[int] = field(default=2, metadata={"help": "the logging frequency"})
-    save_strategy: Optional[str] = field(default="epoch", metadata={"help": "the saving strategy"})
-    save_steps: Optional[int] = field(default=50000, metadata={"help": "the saving frequency"})
-    eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
-    run_name: Optional[str] = field(default="dpo_soft", metadata={"help": "the run name"})
-    loss_type: Optional[str] = field(default="sigmoid", metadata={"help": "the loss type"})
-    output_dir: Optional[str] = field(default="./dpo_soft", metadata={"help": "the output directory"})
-    log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
+    # max_prompt_length: Optional[int] = field(default=1000, metadata={"help": "the maximum prompt length"})
+    # max_length: Optional[int] = field(default=2048, metadata={"help": "the maximum sequence length"})
+    # max_steps: Optional[int] = field(default=20, metadata={"help": "max number of training steps"})
+    # num_train_epochs: Optional[int] = field(default=2, metadata={"help": "max number of training epochs"})
+    # logging_steps: Optional[int] = field(default=2, metadata={"help": "the logging frequency"})
+    # save_strategy: Optional[str] = field(default="epoch", metadata={"help": "the saving strategy"})
+    # save_steps: Optional[int] = field(default=50000, metadata={"help": "the saving frequency"})
+    # eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
+    # run_name: Optional[str] = field(default="dpo_soft", metadata={"help": "the run name"})
+    # loss_type: Optional[str] = field(default="sigmoid", metadata={"help": "the loss type"})
+    # output_dir: Optional[str] = field(default="./dpo_soft", metadata={"help": "the output directory"})
+    # log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
 
     # instrumentation
     sanity_check: Optional[bool] = field(default=False, metadata={"help": "only train on 1000 samples"})
@@ -84,15 +89,15 @@ class ScriptArguments:
 
     choose_type: Optional[str] = field(default="max_random", metadata={"help": "the choose type"})
 
-    report_to: Optional[str] = field(
-        default="wandb",
-        metadata={
-            "help": 'The list of integrations to report the results and logs to. Supported platforms are `"azure_ml"`,'
-            '`"comet_ml"`, `"mlflow"`, `"neptune"`, `"tensorboard"`,`"clearml"` and `"wandb"`. '
-            'Use `"all"` to report to all integrations installed, `"none"` for no integrations.'
-        },
-    )
-    # debug argument for distributed training
+    # report_to: Optional[str] = field(
+    #     default="wandb",
+    #     metadata={
+    #         "help": 'The list of integrations to report the results and logs to. Supported platforms are `"azure_ml"`,'
+    #         '`"comet_ml"`, `"mlflow"`, `"neptune"`, `"tensorboard"`,`"clearml"` and `"wandb"`. '
+    #         'Use `"all"` to report to all integrations installed, `"none"` for no integrations.'
+    #     },
+    # )
+    # # debug argument for distributed training
     ignore_bias_buffers: Optional[bool] = field(
         default=False,
         metadata={
@@ -101,12 +106,12 @@ class ScriptArguments:
         },
     )
     eot_token: Optional[str] = field(default="", metadata={"help": "the end of text token"})
-    mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
+    #mask_prompt: Optional[bool] = field(default=False, metadata={"help": "mask prompt"})
     len_penalty: Optional[float] = field(default=0, metadata={"help": "the length penalty"})
 
 
 def prepare_data(
-    data_dir: str = "/home/xiongwei/data/helpful/rm/rm1003.json",
+    data_dir: str = "/home/xiongwei/data/helpful/rm/rm1003.jsonl",
     sanity_check: bool = False,
     cache_dir: str = None,
     num_proc=24,
@@ -122,7 +127,7 @@ def prepare_data(
     max_max: best v.s. second best
     max_min_p: best v.s. worst but we additionally add a length penalty in the reward value
     """
-    ds = load_dataset("json", data_files=data_dir, split="train", field="instances")
+    ds = load_dataset("json", data_files=data_dir, split="train")
     print(ds)
 
     pos = []
@@ -131,6 +136,7 @@ def prepare_data(
 
     margin = []
     for sample in ds:
+        P = tokenizer.apply_chat_template(sample["prompt"], tokenize = False, add_generation_prompt= True)
         if choose_type == "random":
             idx0 = 0
             idx1 = 1
@@ -160,18 +166,18 @@ def prepare_data(
         if type(idx0) == np.ndarray or type(idx0) == list:
             assert len(idx0) == len(idx1)
             for i in range(len(idx0)):
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx0[i]] + eot_token)
                 neg.append(sample["responses"][idx1[i]] + eot_token)
                 margin.append((sample["rewards"][idx0[i]] - sample["rewards"][idx1[i]]) * margin_scale)
         else:
             if sample["rewards"][idx0] > sample["rewards"][idx1]:
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx0] + eot_token)
                 neg.append(sample["responses"][idx1] + eot_token)
                 margin.append((sample["rewards"][idx0] - sample["rewards"][idx1]) * margin_scale)
             elif sample["rewards"][idx0] < sample["rewards"][idx1]:
-                prompts.append(sample["prompt"])
+                prompts.append(P)
                 pos.append(sample["responses"][idx1] + eot_token)
                 neg.append(sample["responses"][idx0] + eot_token)
                 margin.append((-sample["rewards"][idx0] + sample["rewards"][idx1]) * margin_scale)
@@ -184,13 +190,15 @@ def prepare_data(
 
 
 if __name__ == "__main__":
-    parser = HfArgumentParser(ScriptArguments)
-    script_args = parser.parse_args_into_dataclasses()[0]
+
+    
+    parser = H4ArgumentParser((ScriptArguments, DPOConfig, ModelConfig))
+    script_args, training_args, model_config = parser.parse()
 
     # 1. load a pretrained model
     model = AutoModelForCausalLM.from_pretrained(
-        script_args.model_name_or_path,
-        use_flash_attention_2=True,
+        model_config.model_name_or_path,
+        attn_implementation="flash_attention_2",
         torch_dtype=torch.float16,
     )
     model.config.use_cache = False
@@ -204,14 +212,14 @@ if __name__ == "__main__":
     if script_args.ref_model:
         ref_name = script_args.ref_model
     else:
-        ref_name = script_args.model_name_or_path
+        ref_name = model_config.model_name_or_path
 
     model_ref = AutoModelForCausalLM.from_pretrained(
         ref_name,
         torch_dtype=torch.bfloat16,
-        use_flash_attention_2=True,
+        attn_implementation="flash_attention_2",
     )
-    tokenizer = AutoTokenizer.from_pretrained(script_args.model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(model_config.model_name_or_path)
     if script_args.eos_padding:
         tokenizer.pad_token = tokenizer.eos_token
     else:
@@ -223,14 +231,6 @@ if __name__ == "__main__":
         model.resize_token_embeddings(len(tokenizer))
         model_ref.resize_token_embeddings(len(tokenizer))
 
-    def tokenize(sample):
-        tokenized_pos = tokenizer(sample["prompt"].replace("<bos>", "") + "\n" + sample["chosen"])
-        tokenized_neg = tokenizer(sample["prompt"].replace("<bos>", "") + "\n" + sample["rejected"])
-        prompt_id = tokenizer(sample["prompt"])
-        sample["tprompdt_ids"] = prompt_id["input_ids"]
-        sample["tchosen_input_ids"] = tokenized_pos["input_ids"]
-        sample["trejected_input_ids"] = tokenized_neg["input_ids"]
-        return sample
 
     # 2. Load the Stack-exchange paired dataset
     train_dataset = prepare_data(
@@ -255,52 +255,50 @@ if __name__ == "__main__":
 
     # 4. initialize training arguments:
 
-    training_args = TrainingArguments(
-        per_device_train_batch_size=script_args.per_device_train_batch_size,
-        per_device_eval_batch_size=script_args.per_device_eval_batch_size,
-        # max_steps=script_args.max_steps,
-        num_train_epochs=script_args.num_train_epochs,
-        save_strategy=script_args.save_strategy,
-        logging_steps=script_args.logging_steps,
-        save_steps=script_args.save_steps,
-        gradient_accumulation_steps=script_args.gradient_accumulation_steps,
-        gradient_checkpointing=script_args.gradient_checkpointing,
-        learning_rate=script_args.learning_rate,
-        evaluation_strategy="steps",
-        eval_steps=script_args.eval_steps,
-        output_dir=script_args.output_dir,
-        # report_to=script_args.report_to,
-        lr_scheduler_type=script_args.lr_scheduler_type,
-        warmup_steps=script_args.warmup_steps,
-        # optim=script_args.optimizer_type,
-        bf16=True,
-        remove_unused_columns=False,
-        run_name=script_args.run_name,
-    )
+    # training_args = TrainingArguments(
+    #     per_device_train_batch_size=script_args.per_device_train_batch_size,
+    #     per_device_eval_batch_size=script_args.per_device_eval_batch_size,
+    #     # max_steps=script_args.max_steps,
+    #     num_train_epochs=script_args.num_train_epochs,
+    #     save_strategy=script_args.save_strategy,
+    #     logging_steps=script_args.logging_steps,
+    #     save_steps=script_args.save_steps,
+    #     gradient_accumulation_steps=script_args.gradient_accumulation_steps,
+    #     gradient_checkpointing=script_args.gradient_checkpointing,
+    #     learning_rate=script_args.learning_rate,
+    #     evaluation_strategy="steps",
+    #     eval_steps=script_args.eval_steps,
+    #     output_dir=script_args.output_dir,
+    #     # report_to=script_args.report_to,
+    #     lr_scheduler_type=script_args.lr_scheduler_type,
+    #     warmup_steps=script_args.warmup_steps,
+    #     # optim=script_args.optimizer_type,
+    #     bf16=True,
+    #     remove_unused_columns=False,
+    #     run_name=script_args.run_name,
+    # )
     print(training_args)
 
     # 5. initialize the DPO trainer
 
-    dpo_trainer = PreferenceTrainer(
+    dpo_trainer = MyDPOTrainer(
         model,
         model_ref,
         args=training_args,
-        beta=script_args.beta,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
+        beta=training_args.beta,
         tokenizer=tokenizer,
-        loss_type=script_args.loss_type,
-        max_prompt_length=script_args.max_prompt_length,
-        max_length=script_args.max_length,
-        mask_prompt=script_args.mask_prompt,
-        len_penalty=script_args.len_penalty,
+        max_length=training_args.max_length,
+        max_prompt_length=training_args.max_prompt_length,
+        loss_type=training_args.loss_type,
     )
     print("begin to train")
 
     # 6. train
     dpo_trainer.train()
-    dpo_trainer.save_model(script_args.output_dir)
+    dpo_trainer.save_model(training_args.output_dir)
 
     # 7. save
-    output_dir = os.path.join(script_args.output_dir, "final_checkpoint")
+    output_dir = os.path.join(training_args.output_dir, "final_checkpoint")
     dpo_trainer.model.save_pretrained(output_dir)

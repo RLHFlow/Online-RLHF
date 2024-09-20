@@ -24,13 +24,40 @@ run_iteration() {
     local model_output=$5
 
     conda activate vllm
-    bash generation/run_8gpu.sh $model_path
-    sleep 60
-    python generation/gen_hf.py --ports 8000 8001 8002 8003 --eos_ids 128009 --tokenizer $initial_model --dataset_name_or_path $jsonl_input --output_dir $json_output --K 8 --temperature 1.0
+    bash generation/register_server.sh $model_path
+    sleep 140
+    python generation/gen_hf.py --ports 8000 8001 8002 8003 8004 8005 8006 8007 --eos_ids 128009 --tokenizer $initial_model --dataset_name_or_path $jsonl_input --output_dir $json_output --K 8 --temperature 1.0
     pkill -f "python -m vllm.entrypoints.api_server"
     accelerate launch annotate_data/get_rewards.py --dataset_name_or_path $json_output --output_dir $model_output
     conda activate rlhflow
-    accelerate launch --config_file ./configs/zero2.yaml dpo_iteration/run_dpo.py --run_name $iteration --output_dir $iteration --model_name_or_path $model_path --ref_model $initial_model --learning_rate 5e-7 --max_steps 1200 --choose_type max_min --train_dir $model_output --eval_dir $model_output --loss_type sigmoid --lr_scheduler_type cosine
+    cat <<EOT > dpo_config.yaml
+run_name: $iteration
+output_dir: $iteration
+model_name_or_path: $model_path
+ref_model: $initial_model
+learning_rate: 5e-7
+num_train_epochs: 2
+logging_steps: 2
+gradient_checkpointing: true
+do_train: true
+do_eval: true
+eval_steps: 10000
+choose_type: max_min
+train_dir: $model_output
+eval_dir: $model_output
+loss_type: sigmoid
+lr_scheduler_type: cosine
+max_length: 2048
+max_prompt_length: 1000
+eval_strategy: steps
+bf16: true
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 16
+report_to: wandb
+EOT
+
+    accelerate launch --config_file ./configs/zero2.yaml dpo_iteration/run_dpo.py dpo_config.yaml
 }
 
 

@@ -25,7 +25,7 @@ class ScriptArguments:
         metadata={"help": "the location of the output file"},
     )
     num_datasets: Optional[int] = field(
-        default="",
+        default=8,
         metadata={"help": "the location of the output file"},
     )
 
@@ -38,7 +38,7 @@ all_dirs = [script_args.base_path + str(i) + ".json" for i in range(script_args.
 
 gathered_data = []
 for my_dir in all_dirs:
-    ds = load_dataset("json", data_files=my_dir, split="train", field="instances")
+    ds = ds = load_dataset("json", data_files=my_dir, split="train")
     print(len(ds))
     for sample in ds:
         gathered_data.append(sample)
@@ -47,8 +47,7 @@ random.shuffle(gathered_data)
 
 print("I collect ", len(gathered_data), "samples")
 
-output_eval_dataset = {}
-output_eval_dataset["type"] = "text_only"
-output_eval_dataset["instances"] = gathered_data
 with open(script_args.output_dir, "w", encoding="utf8") as f:
-    json.dump(output_eval_dataset, f, ensure_ascii=False)
+    for i in range(len(gathered_data)):
+        json.dump(gathered_data[i], f, ensure_ascii=False)
+        f.write('\n')
