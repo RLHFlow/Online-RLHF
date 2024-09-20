@@ -108,7 +108,7 @@ conda activate rlhflow
 model_path=meta-llama/Meta-Llama-3-8B-Instruct
 initial_model=meta-llama/Meta-Llama-3-8B-Instruct
 mkdir models
-accelerate launch --config_file ./configs/zero2.yaml ./dpo_iteration/run_dpo.py --run_name rlhflow_iter1 --output_dir ./models/rlhflow_iter1 --model_name_or_path $model_path --ref_model $initial_model --learning_rate 2e-7 --max_steps 1200 --choose_type max_min --train_dir ./data/data_with_rewards.json --eval_dir ./data/data_with_rewards.json --loss_type sigmoid --lr_scheduler_type cosine
+accelerate launch --config_file ./configs/zero2.yaml dpo_iteration/run_dpo.py ./config/training.yaml
 ```
 If you encounter ``RuntimeError: CUDA error: invalid device ordinal, CUDA kernel errors might be asynchronously reported at some other API call'', you need to adjust num_of_process in the config file according to your GPUs.
 
