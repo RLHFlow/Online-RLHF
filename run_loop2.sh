@@ -23,7 +23,7 @@ run_iteration() {
     local json_output=$4
     local model_output=$5
 
-    conda activate vllm54
+    conda activate vllm
     #bash generation/register_server.sh $model_path
     #sleep 140
     #python generation/gen_hf2.py --model_name_or_path $model_path dataset_name_or_path $jsonl_input 
