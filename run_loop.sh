@@ -5,9 +5,9 @@ eval "$(conda shell.bash hook)"
 
 
 # Base paths and settings
-initial_model="TODO: Set initial model path here" 
+initial_model="RLHFlow/LLaMA3-SFT-v2" 
 #"meta-llama/Meta-Llama-3-8B-Instruct"
-base_path="TODO: Set base path here"
+base_path="./iter_dpo"
 #"/home/wx/Iterative-RLHF-dev/test"
 mkdir $base_path
 iteration_prefix="Test"
@@ -34,8 +34,8 @@ run_iteration() {
 run_name: $iteration
 output_dir: $iteration
 model_name_or_path: $model_path
-ref_model: $initial_model
-learning_rate: 5e-7
+ref_model: $model_path
+learning_rate: 5.0e-7
 num_train_epochs: 2
 logging_steps: 2
 gradient_checkpointing: true
