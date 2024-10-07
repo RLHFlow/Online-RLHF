@@ -38,7 +38,7 @@ all_dirs = [script_args.base_path + str(i) + ".json" for i in range(script_args.
 
 gathered_data = []
 for my_dir in all_dirs:
-    ds = ds = load_dataset("json", data_files=my_dir, split="train")
+    ds = load_dataset("json", data_files=my_dir, split="train")
     print(len(ds))
     for sample in ds:
         gathered_data.append(sample)
