@@ -7,15 +7,62 @@ We present the workflow of Online Iterative Reinforcement Learning from Human Fe
 <img width="1589" alt="image" src="eval_result.png">
 
 ## Model Releases
-- [SFT model](https://huggingface.co/RLHFlow/LLaMA3-SFT), also check more SFT checkpoints [Here](https://huggingface.co/collections/RLHFlow/sft-models-66eda119ea7d19a23904da28)
-- [Reward model](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1), also check more reward models [Here](https://huggingface.co/collections/RLHFlow/rlhflow-reward-models-669ecdd1c7e62283cb54b5fd)
-- [RLHF model](https://huggingface.co/RLHFlow/LLaMA3-iterative-DPO-final)
+SFT Model: check more SFT checkpoints [Here](https://huggingface.co/collections/RLHFlow/sft-models-66eda119ea7d19a23904da28)
+- [RLHFlow/LLaMA3-SFT](https://huggingface.co/RLHFlow/LLaMA3-SFT): v1.0 with 1 epoch training
+- [RLHFlow/LLaMA3-SFT-v2](https://huggingface.co/RLHFlow/LLaMA3-SFT-v2): v2.0 with 2 epoch training 
+- [RLHFlow/Llama3-SFT-v2.0-epoch1](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch1)
+- [RLHFlow/Llama3-SFT-v2.0-epoch3](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch3)
+
+Reward Model: also check more reward models [Here](https://huggingface.co/collections/RLHFlow/rlhflow-reward-models-669ecdd1c7e62283cb54b5fd)
+- [Reward model](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1): Bradley-Terry model
+- [RLHFlow/pair-preference-model-LLaMA3-8B](https://huggingface.co/RLHFlow/pair-preference-model-LLaMA3-8B): generative pairwise preference model
+- [RLHFlow/ArmoRM-Llama3-8B-v0.1](https://huggingface.co/RLHFlow/ArmoRM-Llama3-8B-v0.1): multi-head reward model with mixture-of-expert aggregation
+
+RLHF Model: 
+- [RLHF model](https://huggingface.co/RLHFlow/LLaMA3-iterative-DPO-final): trained from RLHFlow/LLaMA3-SFT
+
 
 ## Installation instructions
 
 It is recommended to have two separate environments for **inference** and **training**, respectively. 
 
 **Note that the numpy version should be `numpy<2.0`.  `Numpy 2.0` will encounter unexpected issues!!!**
+
+**SFT Environment**
+
+```shell
+conda create -n sft python=3.10.9
+conda activate sft
+
+## Get axolotl for general model
+git clone https://github.com/OpenAccess-AI-Collective/axolotl
+cd axolotl
+git checkout 55cc214c767741e83ee7b346e5e13e6c03b7b9fa
+pip install -e .
+
+# The test cuda version is 12.1, 12.2. You may need to update the torch version based on your cuda version...
+# you may encounter underfined symbol error related to cuda and flash-attn and 2.1.2 can solve it ...
+pip3 install torch==2.1.2 torchvision torchaudio
+pip install flash-attn
+
+
+## Get FastChat
+git clone https://github.com/lm-sys/FastChat.git
+cd FastChat
+pip install -e .
+
+git clone https://github.com/WeiXiongUST/RLHF-Reward-Modeling.git
+pip install deepspeed
+```
+
+You also need to install wandb to record the training and log in with the huggingface accout to access Gemma.
+
+```shell
+pip install wandb
+wandb login
+
+huggingface-cli login
+```
 
 
 **Inference Environment**
@@ -64,15 +111,17 @@ huggingface-cli login
 We present a step-by-step guidance in this section. 
 
 ### Step 1 Supervised Fine-tuning
-To start with, you should first preprocess your dataset into the standard format. Here is an [example](https://huggingface.co/datasets/RLHFlow/SFT-OpenHermes-2.5-Standard) of the dataset. You may need to adjust the hyper-parameters (batch size, packing size) according to your computational resources. To run SFT, you can use the following command.
+We need to process the SFT data into the standard format. See [RLHFlow/RLHFlow-SFT-Dataset-ver2](https://huggingface.co/datasets/RLHFlow/RLHFlow-SFT-Dataset-ver2) for an eample. 
 
 ```sh
-# You can adjust the training parameters in ./sft/sft.py
-accelerate launch ./sft/sft.py
+cd sft
+torchrun --nproc_per_node 8 --master_port 20001 -m axolotl.cli.train llama3-8b-it.yaml
+```
 
-# Train with deepspeed stage3 
-# You may need to adjust ./configs/zero3.yaml, especially the num_processes (the number of GPUs) according to your environment
-accelerate launch --config_file ./configs/zero3.yaml ./sft/sft.py
+You can also modify the learning rate, batch size, output_path.. with either command or modify the ScriptArguments in the llama3-8b-it.yaml. If you encounter out-of-memory issue. Running the code with Gemma-2b-it with deepspeed stage 3 and gradient checkpoint (set in the config).
+
+```sh
+torchrun --nproc_per_node 8 --master_port 20001 -m axolotl.cli.train llama3-8b-it.yaml --deepspeed ../configs/deepspeed_stage3.json
 ```
 
 ### Step 2 Reward Modeling
@@ -145,7 +194,7 @@ If you encounter ``RuntimeError: CUDA error: invalid device ordinal, CUDA kernel
 We put everything together so that the iterative training can run automatically. Note that we set sleep 1m to wait for registering the API for inference. You may need to adjust this parameter according to your environment.
 
 ```sh
-bash run_loop.sh
+bash run_loop2.sh
 ```
 
 ## Acknowledgement
