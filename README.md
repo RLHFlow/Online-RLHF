@@ -13,6 +13,11 @@ SFT Model: check more SFT checkpoints [Here](https://huggingface.co/collections/
 - [RLHFlow/Llama3-SFT-v2.0-epoch1](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch1)
 - [RLHFlow/Llama3-SFT-v2.0-epoch3](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch3)
 
+| Model | LC AlpacaEval | MATH | GSM8K | HumanEval | HumanEval+ | MMLU | ARC-c | Truthful QA |
+|----------|----------|----------|----------|----------|----------|----------|----------|----------|
+| RLHFlow/LLaMA3-SFT | 12.47 (1146 token) | 30 | 76.9 | 0.634 | 0.561 | 0.6462 | 0.5862 | 0.5345 |
+| RLHFlow/LLaMA3-SFT-v2 | 12.66 (1175 token) | 41.1 | 83.4 | 0.665 | 0.616 | 0.648 | 0.5998 | 0.5393 |
+
 Reward Model: also check more reward models [Here](https://huggingface.co/collections/RLHFlow/rlhflow-reward-models-669ecdd1c7e62283cb54b5fd)
 - [Reward model](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1): Bradley-Terry model
 - [RLHFlow/pair-preference-model-LLaMA3-8B](https://huggingface.co/RLHFlow/pair-preference-model-LLaMA3-8B): generative pairwise preference model
@@ -20,6 +25,8 @@ Reward Model: also check more reward models [Here](https://huggingface.co/collec
 
 RLHF Model: 
 - [RLHF model](https://huggingface.co/RLHFlow/LLaMA3-iterative-DPO-final): trained from RLHFlow/LLaMA3-SFT
+
+
 
 
 ## Installation instructions
@@ -199,7 +206,7 @@ bash run_loop2.sh
 
 ## Acknowledgement
 
-The authors would like to thank the great open-source communities, including the Huggingface TRL team, the Huggingface H4 team, the Allen Institute AI RewardBench team, the Meta LLaMA team, and Axolotl team for sharing the models, codes, and training sets. 
+The authors would like to thank the great open-source communities, including the Huggingface TRL team, the Huggingface H4 team, the Allen Institute AI RewardBench team, the Meta LLaMA team, evalplus team and Axolotl team for sharing the models, codes, and training sets. 
 
 ## Citation
 
