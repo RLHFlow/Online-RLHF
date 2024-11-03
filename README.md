@@ -7,7 +7,7 @@ We present the workflow of Online Iterative Reinforcement Learning from Human Fe
 <img width="1589" alt="image" src="eval_result.png">
 
 ## Model Releases
-SFT Model: check more SFT checkpoints [Here](https://huggingface.co/collections/RLHFlow/sft-models-66eda119ea7d19a23904da28)
+SFT Model: check more SFT checkpoints [Here](https://huggingface.co/collections/RLHFlow/sft-models-66eda119ea7d19a23904da28) and dataset [RLHFlow/RLHFlow-SFT-Dataset-ver2](https://huggingface.co/datasets/RLHFlow/RLHFlow-SFT-Dataset-ver2)
 - [RLHFlow/LLaMA3-SFT](https://huggingface.co/RLHFlow/LLaMA3-SFT): v1.0 with 1 epoch training
 - [RLHFlow/LLaMA3-SFT-v2](https://huggingface.co/RLHFlow/LLaMA3-SFT-v2): v2.0 with 2 epoch training 
 - [RLHFlow/Llama3-SFT-v2.0-epoch1](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch1)
