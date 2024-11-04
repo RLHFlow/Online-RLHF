@@ -13,11 +13,6 @@ SFT Model: check more SFT checkpoints [Here](https://huggingface.co/collections/
 - [RLHFlow/Llama3-SFT-v2.0-epoch1](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch1)
 - [RLHFlow/Llama3-SFT-v2.0-epoch3](https://huggingface.co/RLHFlow/Llama3-SFT-v2.0-epoch3)
 
-| Model | LC AlpacaEval | MATH | GSM8K | HumanEval | HumanEval+ | MMLU | ARC-c | Truthful QA |
-|----------|----------|----------|----------|----------|----------|----------|----------|----------|
-| RLHFlow/LLaMA3-SFT | 12.47 (1146 token) | 30 | 76.9 | 0.634 | 0.561 | 0.6462 | 0.5862 | 0.5345 |
-| RLHFlow/LLaMA3-SFT-v2 | 12.66 (1175 token) | 41.1 | 83.4 | 0.665 | 0.616 | 0.648 | 0.5998 | 0.5393 |
-
 Reward Model: also check more reward models [Here](https://huggingface.co/collections/RLHFlow/rlhflow-reward-models-669ecdd1c7e62283cb54b5fd)
 - [Reward model](https://huggingface.co/sfairXC/FsfairX-LLaMA3-RM-v0.1): Bradley-Terry model
 - [RLHFlow/pair-preference-model-LLaMA3-8B](https://huggingface.co/RLHFlow/pair-preference-model-LLaMA3-8B): generative pairwise preference model
@@ -25,6 +20,21 @@ Reward Model: also check more reward models [Here](https://huggingface.co/collec
 
 RLHF Model: 
 - [RLHF model](https://huggingface.co/RLHFlow/LLaMA3-iterative-DPO-final): trained from RLHFlow/LLaMA3-SFT
+- [RLHF model v2 iter1](https://huggingface.co/RLHFlow/Llama3-v2-iterative-DPO-iter1): trained from RLHFlow/LLaMA3-SFT-v2
+- [RLHF model v2 iter2](https://huggingface.co/RLHFlow/Llama3-v2-iterative-DPO-iter2): trained from RLHFlow/LLaMA3-SFT-v2
+- [RLHF model v2 iter3](https://huggingface.co/RLHFlow/Llama3-v2-iterative-DPO-iter3): trained from RLHFlow/LLaMA3-SFT-v2
+
+| Model | LC AlpacaEval | MATH | GSM8K | HumanEval | HumanEval+ | MMLU | ARC-c | Truthful QA |
+|----------|----------|----------|----------|----------|----------|----------|----------|----------|
+| RLHFlow/LLaMA3-SFT | 12.47 (1146 token) | 30 | 76.9 | 0.634 | 0.561 | 0.6462 | 0.5862 | 0.5345 |
+| RLHFlow/LLaMA3-SFT-v2 | 12.66 (1175 token) | 41.1 | 83.4 | 0.665 | 0.616 | 0.648 | 0.5998 | 0.5393 |
+| RLHFlow/LLaMA3-iterative-DPO-final (v1) | 30.9 | 31.3 | 82.1 | 0.64 | 0.585 | 0.6545 | 0.628 | 0.6216 |
+| RLHFlow/Llama3-v2-iterative-DPO-iter1 | 31.31 (2157 token) | 43 | 85.3 | 0.634 | 0.585 | 0.6494 | 0.634 | 0.5955 |
+| RLHFlow/Llama3-v2-iterative-DPO-iter2 | - | 43.8 | 84.8 | 0.671 | 0.591 | 0.6477 | 0.651 | 0.6331 |
+| RLHFlow/Llama3-v2-iterative-DPO-iter3 | - | 44.4 | 85.3 | 0.683 | 0.622 | 0.6466 | 0.6596 | 0.6473 |
+| meta-llama/Meta-Llama-3-8B-Instruct | 22.9 | 26.3 | 70.2 | 0.64 | 0.567 | 0.6561 | 0.5819 | 0.5166 |
+| meta-llama/Llama-3.1-8B-Instruct | 20.9 | 50 | 86.5 | 0.689 | 0.622 | 0.682 | 0.558 | 0.5408 |
+
 
 
 
