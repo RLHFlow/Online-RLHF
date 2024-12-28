@@ -62,6 +62,10 @@ pip install -e .
 pip3 install torch==2.1.2 torchvision torchaudio
 pip install flash-attn
 
+# fix an error of axolotl: ModuleNotFoundError: No module named 'pynvml.nvml'; 'pynvml' is not a package
+pip install nvidia-ml-py3
+# also edit axolotl/src/axolotl/utils/bench.py (line 6) to: ``from pynvml import NVMLError''
+
 
 ## Get FastChat
 git clone https://github.com/lm-sys/FastChat.git
